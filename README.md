@@ -211,6 +211,14 @@ cd pybaseball
 python setup.py install
 ~~~~
 
+or, to install so that one can edit the project as needed:
+
+~~~~
+git clone https://github.com/jldbc/pybaseball
+cd pybaseball
+pip install -e .
+~~~~
+
 ## Work in Progress:
 Moving forward, I intend to:
 
