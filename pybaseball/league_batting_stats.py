@@ -1,8 +1,10 @@
 import requests
+import io
 import pandas as pd
 import datetime
 from bs4 import BeautifulSoup
 
+s_war_table = pd.DataFrame()
 
 def validate_datestring(date_text):
     try:
@@ -103,6 +105,35 @@ def batting_stats_bref(season=None):
     end_dt = season + '-11-01' #season is definitely over by November
     return(batting_stats_range(start_dt, end_dt))
 
+
+def get_war_table():
+    global s_war_table
+    if s_war_table.empty:
+        print('Gathering WAR table. This may take a moment.')
+        url = "http://www.baseball-reference.com/data/war_daily_bat.txt"
+        s=requests.get(url).content
+        table = pd.read_csv(io.StringIO(s.decode('utf-8')))
+        table = table.dropna(how='all')  # drop if all columns are NA
+
+        for column in list(table):
+            if column not in ['name_common','mlb_ID','player_ID','team_ID','lg_ID','pitcher']:
+                table[column] = pd.to_numeric(table[column])
+
+        s_table = table
+
+    return s_table
+
+
+def batting_war_bref(season=None):
+    """
+    Get all batting stats for a set season. If no argument is supplied, gives
+    stats for current season to date.
+    """
+    if season is None:
+        season = datetime.datetime.today().strftime("%Y")
+
+    table = get_war_table()
+    return table.query('year_ID == {0}'.format(str(season)))
 
 #import league_batting_stats
 #data = league_batting_stats.batting_stats()
