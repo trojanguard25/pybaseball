@@ -124,7 +124,7 @@ def get_war_table():
     return s_table
 
 
-def batting_war_bref(season=None):
+def batting_war_bref(season=None, split_team=False):
     """
     Get all batting stats for a set season. If no argument is supplied, gives
     stats for current season to date.
@@ -133,6 +133,12 @@ def batting_war_bref(season=None):
         season = datetime.datetime.today().strftime("%Y")
 
     table = get_war_table()
+
+    groupby_list = ["player_ID", "year_ID"]
+    if split_team:
+        groupby_list.append('team_ID')
+
+    table = table.groupby(groupby_list).sum().reset_index()
     return table.query('year_ID == {0}'.format(str(season)))
 
 #import league_batting_stats
