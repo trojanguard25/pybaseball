@@ -110,9 +110,10 @@ def get_war_table():
     global s_war_table
     if s_war_table.empty:
         print('Gathering WAR table. This may take a moment.')
-        url = "http://www.baseball-reference.com/data/war_daily_bat.txt"
-        s=requests.get(url).content
-        table = pd.read_csv(io.StringIO(s.decode('utf-8')))
+        #url = "http://www.baseball-reference.com/data/war_daily_bat.txt"
+        #s=requests.get(url).content
+        #table = pd.read_csv(io.StringIO(s.decode('utf-8')))
+        table = pd.read_csv('~/war_daily_bat.txt')
         table = table.dropna(how='all')  # drop if all columns are NA
 
         for column in list(table):
@@ -134,7 +135,7 @@ def batting_war_bref(season=None, split_team=False):
 
     table = get_war_table()
 
-    groupby_list = ["player_ID", "year_ID"]
+    groupby_list = ["player_ID", "year_ID", 'age']
     if split_team:
         groupby_list.append('team_ID')
 

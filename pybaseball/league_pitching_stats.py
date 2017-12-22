@@ -4,6 +4,8 @@ import numpy as np
 from bs4 import BeautifulSoup
 import datetime
 
+s_war_table = pd.DataFrame()
+
 def validate_datestring(date_text):
     try:
         datetime.datetime.strptime(date_text, '%Y-%m-%d')
@@ -105,6 +107,43 @@ def pitching_stats_bref(season=None):
     start_dt = season + '-03-01' #opening day is always late march or early april
     end_dt = season + '-11-01' #season is definitely over by November 
     return(pitching_stats_range(start_dt, end_dt))
+
+
+def get_war_table():
+    global s_war_table
+    if s_war_table.empty:
+        print('Gathering WAR table. This may take a moment.')
+        #url = "http://www.baseball-reference.com/data/war_daily_pitch.txt"
+        #s=requests.get(url).content
+        #table = pd.read_csv(io.StringIO(s.decode('utf-8')))
+        table = pd.read_csv('~/war_daily_pitch.txt')
+        table = table.dropna(how='all')  # drop if all columns are NA
+
+        for column in list(table):
+            if column not in ['name_common','mlb_ID','player_ID','team_ID','lg_ID','pitcher']:
+                table[column] = pd.to_numeric(table[column])
+
+        s_table = table
+
+    return s_table
+
+
+def pitching_war_bref(season=None, split_team=False):
+    """
+    Get all batting stats for a set season. If no argument is supplied, gives
+    stats for current season to date.
+    """
+    if season is None:
+        season = datetime.datetime.today().strftime("%Y")
+
+    table = get_war_table()
+
+    groupby_list = ["player_ID", "year_ID", 'age']
+    if split_team:
+        groupby_list.append('team_ID')
+
+    table = table.groupby(groupby_list).sum().reset_index()
+    return table.query('year_ID == {0}'.format(str(season)))
 
 
 

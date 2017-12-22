@@ -7,6 +7,7 @@ from .league_batting_stats import batting_stats_bref
 from .league_batting_stats import batting_war_bref
 from .league_batting_stats import batting_stats_range
 from .league_pitching_stats import pitching_stats_bref
+from .league_pitching_stats import pitching_war_bref
 from .league_pitching_stats import pitching_stats_range
 from .standings import standings
 from .team_results import schedule_and_record
