@@ -1,6 +1,7 @@
 import requests
 import pandas as pd
 import datetime
+import io
 from bs4 import BeautifulSoup
 
 
@@ -104,8 +105,18 @@ def batting_stats_bref(season=None):
     return(batting_stats_range(start_dt, end_dt))
 
 
-#import league_batting_stats
-#data = league_batting_stats.batting_stats()
-
-
-#['Age', '#days', 'G', 'PA', 'AB', 'R', 'H', '2B', '3B','HR', 'RBI', 'BB', 'IBB', 'SO', 'HBP', 'SH', 'SF', 'GDP','SB', 'CS', 'BA', 'OBP', 'SLG', 'OPS']
+def bwar_bat(return_all=False):
+    """
+    Get data from war_daily_bat table. Returns WAR, its components, and a few other useful stats. 
+    To get all fields from this table, supply argument return_all=True.  
+    """
+    url = "http://www.baseball-reference.com/data/war_daily_bat.txt"
+    s = requests.get(url).content
+    c=pd.read_csv(io.StringIO(s.decode('utf-8')))
+    if return_all:
+        return c
+    else:
+        cols_to_keep = ['name_common', 'mlb_ID', 'player_ID', 'year_ID', 'team_ID', 'stint_ID', 'lg_ID',
+                        'pitcher','G', 'PA', 'salary', 'runs_above_avg', 'runs_above_avg_off','runs_above_avg_def',
+                        'WAR_rep','WAA','WAR']
+        return c[cols_to_keep]
