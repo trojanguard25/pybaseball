@@ -1,6 +1,7 @@
 import requests
 import pandas as pd
 import numpy as np
+import io
 from bs4 import BeautifulSoup
 import datetime
 
@@ -112,38 +113,24 @@ def pitching_stats_bref(season=None):
 def get_war_table():
     global s_war_table
     if s_war_table.empty:
-        print('Gathering WAR table. This may take a moment.')
-        #url = "http://www.baseball-reference.com/data/war_daily_pitch.txt"
-        #s=requests.get(url).content
-        #table = pd.read_csv(io.StringIO(s.decode('utf-8')))
-        table = pd.read_csv('~/war_daily_pitch.txt')
-        table = table.dropna(how='all')  # drop if all columns are NA
+        url = "http://www.baseball-reference.com/data/war_daily_pitch.txt"
+        s = requests.get(url).content
+        table = pd.read_csv(io.StringIO(s.decode('utf-8')))
 
-        for column in list(table):
-            if column not in ['name_common','mlb_ID','player_ID','team_ID','lg_ID','pitcher']:
-                table[column] = pd.to_numeric(table[column])
+        s_war_table = table
 
-        s_table = table
+    return s_war_table
 
-    return s_table
-
-
-def pitching_war_bref(season=None, split_team=False):
+def bwar_pitch(return_all=False):
     """
-    Get all batting stats for a set season. If no argument is supplied, gives
-    stats for current season to date.
+    Get data from war_daily_pitch table. Returns WAR, its components, and a few other useful stats. 
+    To get all fields from this table, supply argument return_all=True.  
     """
-    if season is None:
-        season = datetime.datetime.today().strftime("%Y")
-
-    table = get_war_table()
-
-    groupby_list = ["player_ID", "year_ID", 'age']
-    if split_team:
-        groupby_list.append('team_ID')
-
-    table = table.groupby(groupby_list).sum().reset_index()
-    return table.query('year_ID == {0}'.format(str(season)))
-
-
-
+    c = get_war_table()
+    if return_all:
+        return c
+    else:
+        cols_to_keep = ['name_common', 'age', 'mlb_ID', 'player_ID', 'year_ID', 'team_ID', 'stint_ID', 'lg_ID',
+                        'G', 'GS', 'RA','xRA', 'BIP', 'BIP_perc','salary', 'ERA_plus', 'WAR_rep', 'WAA',
+                        'WAA_adj','WAR']
+        return c[cols_to_keep]

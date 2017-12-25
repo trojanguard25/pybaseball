@@ -29,7 +29,6 @@ def get_lookup_table():
 
     return s_table
 
-
 def playerid_lookup(last, first=None):
     # force input strings to lowercase
     last = last.lower()
